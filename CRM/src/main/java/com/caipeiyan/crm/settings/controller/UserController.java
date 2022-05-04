@@ -1,5 +1,7 @@
 package com.caipeiyan.crm.settings.controller;
 
+import com.caipeiyan.crm.common.Constant.Constant;
+import com.caipeiyan.crm.common.Utils.DateUtils;
 import com.caipeiyan.crm.common.pojo.ReturnObject;
 import com.caipeiyan.crm.settings.pojo.User;
 import com.caipeiyan.crm.settings.service.UserService;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,7 +28,7 @@ public class UserController {
     UserService userService;
 
     @RequestMapping("/settings/qx/user/login.do")
-    public @ResponseBody Object login(String userName, String pwd, String rememberTenDays, HttpServletRequest request){
+    public @ResponseBody Object login(String userName, String pwd, String rememberTenDays, HttpServletRequest request, HttpSession session){
         Map<String,Object> map = new HashMap<>();
         map.put("loginAct", userName);
         map.put("loginPwd",pwd);
@@ -33,22 +36,23 @@ public class UserController {
         ReturnObject returnObject  = new ReturnObject();
         if(u == null){
             //返回用户名或密码不正确
-            returnObject.setCode("0");
+            returnObject.setCode(Constant.RETURN_OBJECT_FLAG_FAIL);
             returnObject.setMsg("用户名或密码不正确");
         }else{
-            SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+            String dateStr = DateUtils.formatDate(new Date());
             //验证账号是否过期，是否锁定，是否ip受限
-            if(u.getExpireTime().compareTo(sf.format(new Date())) < 0){
-                returnObject.setCode("0");
+            if(u.getExpireTime().compareTo(dateStr) < 0){
+                returnObject.setCode(Constant.RETURN_OBJECT_FLAG_FAIL);
                 returnObject.setMsg("账号已过期");
             }else if(u.getLockState().equals("0")){
-                returnObject.setCode("0");
+                returnObject.setCode(Constant.RETURN_OBJECT_FLAG_FAIL);
                 returnObject.setMsg("账号已锁定");
             }else if( !u.getAllowIps().contains(request.getRemoteAddr())){
-                returnObject.setCode("0");
+                returnObject.setCode(Constant.RETURN_OBJECT_FLAG_FAIL);
                 returnObject.setMsg("ip地址不正确");
             }else {
-                returnObject.setCode("1");
+                returnObject.setCode(Constant.RETURN_OBJECT_FLAG_SUCCESS);
+                session.setAttribute(Constant.USER_INFO, u);
             }
         }
         return returnObject;

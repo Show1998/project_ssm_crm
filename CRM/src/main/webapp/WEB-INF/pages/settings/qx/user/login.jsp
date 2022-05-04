@@ -12,6 +12,13 @@
 <script type="text/javascript">
 	$(function (){
 
+		//给窗口添加一个事件，用来实现按下回车相当于点击登陆按钮
+		$(window).keydown(function (e) {
+			if(e.keyCode == 13){
+				$("#loginBtn").click();
+			}
+		})
+
 		$("#loginBtn").click(function (){
 			//获取前端的参数
 			var userName = $.trim($("#userName").val());
@@ -36,12 +43,14 @@
 					type:'post',
 					success:function (data) {
 						if (data.code == "1"){
-							window.location.href("workbench/index.do");
+							window.location.href = "workbench/index.do";
 						}
 						if (data.code == "0"){
 							$("#msg").html(data.msg);
 						}
-
+					},
+					beforeSend:function () {
+						$("#msg").html("正在登陆，处理中！");
 					}
 
 				})
