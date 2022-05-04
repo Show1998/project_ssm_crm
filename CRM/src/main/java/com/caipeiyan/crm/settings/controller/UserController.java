@@ -25,7 +25,7 @@ public class UserController {
     UserService userService;
 
     @RequestMapping("/settings/qx/user/login.do")
-    public @ResponseBody Object login(String userName, String pwd, int rememberTenDays, HttpServletRequest request){
+    public @ResponseBody Object login(String userName, String pwd, String rememberTenDays, HttpServletRequest request){
         Map<String,Object> map = new HashMap<>();
         map.put("loginAct", userName);
         map.put("loginPwd",pwd);

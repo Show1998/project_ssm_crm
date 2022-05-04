@@ -20,4 +20,16 @@ public class ReturnObject {
     public void setRetData(Object retData) {
         this.retData = retData;
     }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public Object getRetData() {
+        return retData;
+    }
 }
