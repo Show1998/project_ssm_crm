@@ -10,7 +10,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,7 +30,7 @@ public class UserController {
     UserService userService;
 
     @RequestMapping("/settings/qx/user/login.do")
-    public @ResponseBody Object login(String userName, String pwd, String rememberTenDays, HttpServletRequest request, HttpSession session){
+    public @ResponseBody Object login(String userName, String pwd, String rememberTenDays, HttpServletRequest request, HttpSession session, HttpServletResponse response){
         Map<String,Object> map = new HashMap<>();
         map.put("loginAct", userName);
         map.put("loginPwd",pwd);
@@ -53,8 +55,34 @@ public class UserController {
             }else {
                 returnObject.setCode(Constant.RETURN_OBJECT_FLAG_SUCCESS);
                 session.setAttribute(Constant.USER_INFO, u);
+                if (rememberTenDays.equals("true")){
+                    Cookie c1 = new Cookie("userName", userName);
+                    Cookie c2 = new Cookie("pwd", pwd);
+                    c1.setMaxAge(10*24*60*60);
+                    c2.setMaxAge(10*24*60*60);
+                    response.addCookie(c1);
+                    response.addCookie(c2);
+                }else {
+                    Cookie c1 = new Cookie("userName", userName);
+                    Cookie c2 = new Cookie("pwd", pwd);
+                    c1.setMaxAge(0);
+                    c2.setMaxAge(0);
+                    response.addCookie(c1);
+                    response.addCookie(c2);
+                }
             }
         }
         return returnObject;
+    }
+    @RequestMapping("/settings/qx/user/logout.do")
+    public String logout(HttpServletResponse response,HttpSession session){
+        Cookie c1 = new Cookie("userName","1");
+        Cookie c2 = new Cookie("pwd", "2");
+        c1.setMaxAge(0);
+        c2.setMaxAge(0);
+        response.addCookie(c1);
+        response.addCookie(c2);
+        session.invalidate();
+        return "redirect:/";
     }
 }

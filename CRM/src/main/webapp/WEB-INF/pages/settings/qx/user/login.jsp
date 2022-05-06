@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
 	String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+"/";
 %>
@@ -76,14 +77,20 @@
 			<form action="workbench/index.html" class="form-horizontal" role="form">
 				<div class="form-group form-group-lg">
 					<div style="width: 350px;">
-						<input class="form-control" id="userName" type="text" placeholder="用户名">
+						<input class="form-control" id="userName" type="text" value="${cookie.userName.value}" placeholder="用户名">
 					</div>
 					<div style="width: 350px; position: relative;top: 20px;">
-						<input class="form-control" id="pwd" type="password" placeholder="密码">
+						<input class="form-control" id="pwd" type="password" value="${cookie.pwd.value}" placeholder="密码">
 					</div>
 					<div class="checkbox"  style="position: relative;top: 30px; left: 10px;">
 						<label>
-							<input type="checkbox" id="rememberTenDays"> 十天内免登录
+							<c:if test="${not empty cookie.userName.value and not empty cookie.pwd.value}">
+								<input type="checkbox" id="rememberTenDays" checked>
+							</c:if>
+							<c:if test="${ empty cookie.userName.value or empty cookie.pwd.value}">
+								<input type="checkbox" id="rememberTenDays" >
+							</c:if>
+							十天内免登录
 						</label>
 						&nbsp;&nbsp;
 						<span id="msg"></span>
