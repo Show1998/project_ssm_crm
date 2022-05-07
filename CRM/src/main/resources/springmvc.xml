@@ -20,5 +20,14 @@
 <!--       <property name="maxUploadSize" value="#{1024*1024*80}"/>-->
 <!--       <property name="defaultEncoding" value="utf-8"/>-->
 <!--    </bean>-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/settings/**"/>
+            <mvc:mapping path="/workbench/**"/>
+            <mvc:exclude-mapping path="/settings/qx/user/toLogin.do"/>
+            <mvc:exclude-mapping path="/settings/qx/user/login.do"/>
+            <bean class="com.caipeiyan.crm.settings.interceptor.LoginInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
 
 </beans>
