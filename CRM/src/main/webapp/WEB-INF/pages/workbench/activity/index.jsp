@@ -19,6 +19,62 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 <script type="text/javascript">
 
 	$(function(){
+		$("#createActivityBtn").click(function () {
+			//模态窗口显示
+			$("#createActivityModal").modal("show");
+			$("#saveActivityBtn").click(function () {
+				//获取数据
+				var owner = $("#create-marketActivityOwner").val();
+				var name = $("#create-marketActivityName").val();
+				var startDate = $("#create-startTime").val();
+				var endDate = $("#create-endTime").val();
+				var cost = $("#create-cost").val();
+				var description = $("#create-describe").val();
+				//数据验证
+				if(owner == ""){
+					alert("所有者不能为空！");
+					return;
+				}
+				if(name == ""){
+					alert("名字不能为空！");
+					return;
+				}
+				if(startDate != "" && endDate != ""){
+					if(startDate > endDate){
+						alert("结束日期不能小于开始日期！")
+						return;
+					}
+				}
+				var regExp = /^(([1-9]\d*)|0)$/
+				if(!regExp.test(cost)){
+					alert("成本只能为非负整数！")
+					return;
+				}
+				//传递数据，处理响应
+				$.ajax({
+					url:'workbench/activity/createActivity.do',
+					data:{
+						owner:owner,
+						name:name,
+						startDate:startDate,
+						endDate:endDate,
+						cost:cost,
+						description:description
+					},
+					dataType:'json',
+					type:'post',
+					success:function (data) {
+						if(data.code == 1){
+							$("#createActivityModal").modal("hide");
+						}
+						if(data.code == 0){
+							$("#createActivityModal").modal("show");
+							alert(data.msg);
+						}
+					}
+				})
+			})
+		})
 
 
 
@@ -51,6 +107,7 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 								  </c:forEach>
 								</select>
 							</div>
+
                             <label for="create-marketActivityName" class="col-sm-2 control-label">名称<span style="font-size: 15px; color: red;">*</span></label>
                             <div class="col-sm-10" style="width: 300px;">
                                 <input type="text" class="form-control" id="create-marketActivityName">
@@ -86,7 +143,7 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal">保存</button>
+					<button type="button" class="btn btn-primary" id="saveActivityBtn">保存</button>
 				</div>
 			</div>
 		</div>
@@ -243,7 +300,7 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 			</div>
 			<div class="btn-toolbar" role="toolbar" style="background-color: #F7F7F7; height: 50px; position: relative;top: 5px;">
 				<div class="btn-group" style="position: relative; top: 18%;">
-				  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createActivityModal"><span class="glyphicon glyphicon-plus"></span> 创建</button>
+				  <button type="button" class="btn btn-primary" id="createActivityBtn"><span class="glyphicon glyphicon-plus"></span> 创建</button>
 				  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editActivityModal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
 				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
