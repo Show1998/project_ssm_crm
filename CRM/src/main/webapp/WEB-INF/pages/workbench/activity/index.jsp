@@ -20,8 +20,34 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 
 	$(function(){
 		$("#createActivityBtn").click(function () {
+            //初始化工作
+            //重置表单
+            $("#createActivityForm")[0].reset();
+
 			//模态窗口显示
 			$("#createActivityModal").modal("show");
+
+            //加载日历
+            $("#create-startTime").datetimepicker({
+                language:'zh-CN',
+                format:'yyyy-mm-dd',
+                minView:'month',
+                initialDate:new Date(),
+                autoclose:true,
+                todayBtn:true,
+                clearBtn:true
+            });
+            $("#create-endTime").datetimepicker({
+                language:'zh-CN',
+                format:'yyyy-mm-dd',
+                minView:'month',
+                initialDate:new Date(),
+                autoclose:true,
+                todayBtn:true,
+                clearBtn:true
+            });
+
+            //点击保存按钮
 			$("#saveActivityBtn").click(function () {
 				//获取数据
 				var owner = $("#create-marketActivityOwner").val();
@@ -74,10 +100,8 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 					}
 				})
 			})
+
 		})
-
-
-
 	});
 
 </script>
@@ -96,7 +120,7 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 				</div>
 				<div class="modal-body">
 
-					<form class="form-horizontal" role="form">
+					<form id="createActivityForm" class="form-horizontal" role="form">
 
 						<div class="form-group">
 							<label for="create-marketActivityOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
@@ -117,11 +141,11 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 						<div class="form-group">
 							<label for="create-startTime" class="col-sm-2 control-label">开始日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="create-startTime">
+								<input type="text" class="form-control" id="create-startTime" readonly>
 							</div>
 							<label for="create-endTime" class="col-sm-2 control-label">结束日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="create-endTime">
+								<input type="text" class="form-control" id="create-endTime" readonly>
 							</div>
 						</div>
                         <div class="form-group">
