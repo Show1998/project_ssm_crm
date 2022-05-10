@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class ActivityController {
@@ -44,6 +46,9 @@ public class ActivityController {
             int i = activityService.createActivity(activity);
             if (i>0){
                 returnObject.setCode(Constant.RETURN_OBJECT_FLAG_SUCCESS);
+            }else{
+                returnObject.setCode(Constant.RETURN_OBJECT_FLAG_FAIL);
+                returnObject.setMsg("系统繁忙，请稍后再试！");
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -52,5 +57,20 @@ public class ActivityController {
         }
         return returnObject;
     }
-
+    @RequestMapping("/workbench/activity/queryActivityByConditionForPage.do")
+    public @ResponseBody Object queryActivityByConditionForPage(String name,String owner,String startDate,String endDate,int pageNo,int pageSize){
+        Map<String,Object> paraMap = new HashMap<>();
+        Map<String,Object> resultMap = new HashMap<>();
+        paraMap.put("acName", name);
+        paraMap.put("acOwner", owner);
+        paraMap.put("startDate", startDate);
+        paraMap.put("endDate", endDate);
+        paraMap.put("startNo", (pageNo-1)*pageSize);
+        paraMap.put("pageSize", pageSize);
+        List<Activity> resultList = activityService.queryActivityByConditionForPage(paraMap);
+        int amount = activityService.queryAmountOfActivity(paraMap);
+        resultMap.put("resultList",resultList);
+        resultMap.put("amount",amount);
+        return resultMap;
+    }
 }

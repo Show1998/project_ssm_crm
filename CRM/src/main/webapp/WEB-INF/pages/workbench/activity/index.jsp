@@ -17,8 +17,58 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
 
 <script type="text/javascript">
+	//写一个函数，用来刷新活动页面
+	function refreshActivity() {
+		//获取数据
+		var name = $("#conditionName").val();
+		var owner = $("#conditionOwner").val();
+		// var owner = "蔡";
+		// alert(owner);
+		var startTime = $("#startTime").val();
+		var endTime =$("#endTime").val();
+		var pageNo = 1;//后面要动态获取
+		var pageSize = 10;
+		//发送请求，处理结果
+		$.ajax({
+			url: 'workbench/activity/queryActivityByConditionForPage.do',
+			data: {
+				name:name,
+				owner:owner,
+				startDate:startTime,
+				endDate:endTime,
+				pageNo:pageNo,
+				pageSize:pageSize
+			},
+			dataType: 'json',
+			Type:'post',
+			success:function (data) {
+				$("#amountOfActivity").text(data.amount);
+				var htmlStr ="";
+				$.each(data.resultList,function (index,obj) {
+					htmlStr+="<tr class=\"active\">";
+					htmlStr+="<td><input type=\"checkbox\" value=\""+obj.id+"\"/></td>";
+					htmlStr+="<td><a style=\"text-decoration: none; cursor: pointer;\" onclick=\"window.location.href='detail.html';\">"+obj.name+"</a></td>";
+					htmlStr+="<td>"+obj.owner+"</td>";
+					htmlStr+="<td>"+obj.startDate+"</td>";
+					htmlStr+="<td>"+obj.endDate+"</td>";
+					htmlStr+="</tr>";
+				});
+				$("#tBody").html(htmlStr);
+			}
+		})
+	}
+</script>
+
+<script type="text/javascript">
 
 	$(function(){
+		//调用函数，查询活动
+		refreshActivity();
+		//给有查询按钮添加函数
+		$("#searchBtn").click(function () {
+			refreshActivity();
+		});
+		//点击创建按钮
 		$("#createActivityBtn").click(function () {
             //初始化工作
             //重置表单
@@ -92,6 +142,7 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 					success:function (data) {
 						if(data.code == 1){
 							$("#createActivityModal").modal("hide");
+							refreshActivity();
 						}
 						if(data.code == 0){
 							$("#createActivityModal").modal("show");
@@ -100,8 +151,8 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 					}
 				})
 			})
-
 		})
+
 	});
 
 </script>
@@ -293,14 +344,14 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">名称</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="conditionName">
 				    </div>
 				  </div>
 
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">所有者</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="conditionOwner">
 				    </div>
 				  </div>
 
@@ -318,7 +369,7 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 				    </div>
 				  </div>
 
-				  <button type="submit" class="btn btn-default">查询</button>
+				  <button type="button" class="btn btn-default" id="searchBtn">查询</button>
 
 				</form>
 			</div>
@@ -337,41 +388,34 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 			<div style="position: relative;top: 10px;">
 				<table class="table table-hover">
 					<thead>
-						<tr style="color: #B3B3B3;">
-							<td><input type="checkbox" /></td>
-							<td>名称</td>
-                            <td>所有者</td>
-							<td>开始日期</td>
-							<td>结束日期</td>
-						</tr>
+					<tr style="color: #B3B3B3;">
+						<td><input type="checkbox" /></td>
+						<td>名称</td>
+						<td>所有者</td>
+						<td>开始日期</td>
+						<td>结束日期</td>
+					</tr>
 					</thead>
-					<tbody>
-						<tr class="active">
-							<td><input type="checkbox" /></td>
-							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>
-                            <td>zhangsan</td>
-							<td>2020-10-10</td>
-							<td>2020-10-20</td>
-						</tr>
-                        <tr class="active">
-                            <td><input type="checkbox" /></td>
-                            <td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>
-                            <td>zhangsan</td>
-                            <td>2020-10-10</td>
-                            <td>2020-10-20</td>
-                        </tr>
+					<tbody id="tBody">
+<%--					<tr class="active">--%>
+<%--						<td><input type="checkbox" /></td>--%>
+<%--						<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>--%>
+<%--						<td>zhangsan</td>--%>
+<%--						<td>2020-10-10</td>--%>
+<%--						<td>2020-10-20</td>--%>
+<%--					</tr>--%>
 					</tbody>
 				</table>
 			</div>
 
 			<div style="height: 50px; position: relative;top: 30px;">
 				<div>
-					<button type="button" class="btn btn-default" style="cursor: default;">共<b>50</b>条记录</button>
+					<button type="button" class="btn btn-default"  style="cursor: default;">共<b id="amountOfActivity"></b>条记录</button>
 				</div>
 				<div class="btn-group" style="position: relative;top: -34px; left: 110px;">
 					<button type="button" class="btn btn-default" style="cursor: default;">显示</button>
 					<div class="btn-group">
-						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="pageSize">
 							10
 							<span class="caret"></span>
 						</button>
