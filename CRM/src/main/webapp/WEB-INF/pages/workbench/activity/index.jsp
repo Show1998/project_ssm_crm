@@ -17,7 +17,7 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 	<script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
 	<link rel="stylesheet" type="text/css" href="jquery/bs_pagination-master/css/jquery.bs_pagination.min.css">
 	<script type="text/javascript" src="jquery/bs_pagination-master/js/jquery.bs_pagination.min.js"></script>
-	<script type="text/javascript" src="jquery/bs_pagination-master/localization/el.min.js"></script>
+	<script type="text/javascript" src="jquery/bs_pagination-master/localization/en.js"></script>
 
 <script type="text/javascript">
 	//写一个函数，用来刷新活动页面
@@ -93,7 +93,7 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 	$(function(){
 		//调用函数，查询活动
 		refreshActivity(1,10);
-		//给有查询按钮添加函数
+		//给查询按钮添加函数
 		$("#searchBtn").click(function () {
             var i = $("#demo").bs_pagination('getOption','rowsPerPage');
 			refreshActivity(1,i);
@@ -182,7 +182,38 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 				})
 			})
 		})
+		//给全选按钮添加事件
+
 		//点击删除按钮
+		$("#deleteActivityBtn").click(function () {
+			var checkArr = $("#tBody input[type = 'checkbox']:checked");
+			var ids = "";
+			if(checkArr.size() == 0){
+				alert("请选中一条数据！")
+				return;
+			}
+			if(window.confirm("确定删除吗？")) {
+				$.each(checkArr, function () {
+					ids += "id=" + this.value + "&"
+				})
+				ids = ids.substr(0, ids.length - 1);
+
+				$.ajax({
+					url: 'workbench/activity/deleteActivityById.do',
+					data: ids,
+					dataType: 'json',
+					type: 'post',
+					success: function (data) {
+						if (data.code == 0) {
+							alert(data.msg)
+						}
+						if (data.code == 1) {
+							refreshActivity(1, $("#demo").bs_pagination('getOption', 'rowsPerPage'));
+						}
+					}
+				})
+			}
+		})
 	});
 
 </script>
@@ -407,7 +438,7 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 				<div class="btn-group" style="position: relative; top: 18%;">
 				  <button type="button" class="btn btn-primary" id="createActivityBtn"><span class="glyphicon glyphicon-plus"></span> 创建</button>
 				  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editActivityModal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
-				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+				  <button type="button" class="btn btn-danger" id="deleteActivityBtn"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
 				<div class="btn-group" style="position: relative; top: 18%;">
                     <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importActivityModal" ><span class="glyphicon glyphicon-import"></span> 上传列表数据（导入）</button>
@@ -419,7 +450,7 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 				<table class="table table-hover">
 					<thead>
 					<tr style="color: #B3B3B3;">
-						<td><input type="checkbox" /></td>
+						<td><input type="checkbox" id="checkAllBtn"/></td>
 						<td>名称</td>
 						<td>所有者</td>
 						<td>开始日期</td>

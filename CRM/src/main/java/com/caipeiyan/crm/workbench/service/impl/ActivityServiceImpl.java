@@ -28,4 +28,9 @@ public class ActivityServiceImpl implements ActivityService {
     public int queryAmountOfActivity(Map<String, Object> map) {
         return activityMapper.selectAmountOfActivity(map);
     }
+
+    @Override
+    public int deleteActivityById(String[] ids) {
+        return activityMapper.deleteActivityById(ids);
+    }
 }

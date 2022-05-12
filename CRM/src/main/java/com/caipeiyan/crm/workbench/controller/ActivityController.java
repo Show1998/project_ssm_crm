@@ -73,4 +73,23 @@ public class ActivityController {
         resultMap.put("amount",amount);
         return resultMap;
     }
+
+    @RequestMapping("/workbench/activity/deleteActivityById.do")
+    public @ResponseBody Object deleteActivityById(String[] id){
+        ReturnObject returnObject = new ReturnObject();
+        try {
+            int i = activityService.deleteActivityById(id);
+            if (i == 0){
+                returnObject.setCode(Constant.RETURN_OBJECT_FLAG_FAIL);
+                returnObject.setMsg("系统繁忙，删除失败！");
+            }else {
+                returnObject.setCode(Constant.RETURN_OBJECT_FLAG_SUCCESS);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            returnObject.setCode(Constant.RETURN_OBJECT_FLAG_FAIL);
+            returnObject.setMsg("系统繁忙，删除失败！");
+        }
+        return returnObject;
+    }
 }

@@ -253,6 +253,15 @@
           and a.end_date&lt;=#{endDate}
         </if>
       </where>
-
   </select>
+
+<!--  int deleteActivityById(String[] ids);-->
+<!--  collection里面可以写三种值：array，list，xxx-->
+  <delete id="deleteActivityById" >
+    delete from tbl_activity
+    where id in
+    <foreach collection="array" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
+  </delete>
 </mapper>

@@ -74,4 +74,11 @@ public interface ActivityMapper {
      * @return
      */
     int selectAmountOfActivity(Map<String,Object> map);
+
+    /**
+     * 根据id来删除活动
+     * @param ids
+     * @return
+     */
+    int deleteActivityById(String[] ids);
 }
