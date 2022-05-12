@@ -6,19 +6,22 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 <html>
 <head>
 	<base href="<%=baseUrl%>">
-<meta charset="UTF-8">
+	<meta charset="UTF-8">
 
-<link href="jquery/bootstrap_3.3.0/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
-<link href="jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css" type="text/css" rel="stylesheet" />
+	<link href="jquery/bootstrap_3.3.0/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+	<link href="jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css" type="text/css" rel="stylesheet" />
 
-<script type="text/javascript" src="jquery/jquery-1.11.1-min.js"></script>
-<script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
-<script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
+	<script type="text/javascript" src="jquery/jquery-1.11.1-min.js"></script>
+	<script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
+	<script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
+	<link rel="stylesheet" type="text/css" href="jquery/bs_pagination-master/css/jquery.bs_pagination.min.css">
+	<script type="text/javascript" src="jquery/bs_pagination-master/js/jquery.bs_pagination.min.js"></script>
+	<script type="text/javascript" src="jquery/bs_pagination-master/localization/el.min.js"></script>
 
 <script type="text/javascript">
 	//写一个函数，用来刷新活动页面
-	function refreshActivity() {
+	function refreshActivity(pageNo,pageSize) {
 		//获取数据
 		var name = $("#conditionName").val();
 		var owner = $("#conditionOwner").val();
@@ -26,8 +29,6 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 		// alert(owner);
 		var startTime = $("#startTime").val();
 		var endTime =$("#endTime").val();
-		var pageNo = 1;//后面要动态获取
-		var pageSize = 10;
 		//发送请求，处理结果
 		$.ajax({
 			url: 'workbench/activity/queryActivityByConditionForPage.do',
@@ -54,6 +55,34 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 					htmlStr+="</tr>";
 				});
 				$("#tBody").html(htmlStr);
+
+				//计算总页数
+				var totalPages=1;
+				if( data.amount%pageSize == 0){
+					totalPages = data.amount/pageSize;
+				}else {
+					totalPages = parseInt(data.amount/pageSize)+1;
+				}
+
+				//调用分页的函数
+				$("#demo").bs_pagination({
+					currentPage:pageNo,
+
+					rowsPerPage:pageSize,
+					totalRows:data.amount,
+					totalPages:totalPages,
+
+					visiblePageLinks: 5,
+
+					showGoToPage: true,
+					showRowsPerPage: true,
+					showRowsInfo: true,
+
+					onChangePage:function (event,pageObj) {
+						refreshActivity(pageObj.currentPage,pageObj.rowsPerPage);
+					}
+
+				})
 			}
 		})
 	}
@@ -63,10 +92,11 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 
 	$(function(){
 		//调用函数，查询活动
-		refreshActivity();
+		refreshActivity(1,10);
 		//给有查询按钮添加函数
 		$("#searchBtn").click(function () {
-			refreshActivity();
+            var i = $("#demo").bs_pagination('getOption','rowsPerPage');
+			refreshActivity(1,i);
 		});
 		//点击创建按钮
 		$("#createActivityBtn").click(function () {
@@ -142,7 +172,7 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 					success:function (data) {
 						if(data.code == 1){
 							$("#createActivityModal").modal("hide");
-							refreshActivity();
+							refreshActivity(1,$("#demo").bs_pagination('getOption','rowsPerPage'));
 						}
 						if(data.code == 0){
 							$("#createActivityModal").modal("show");
@@ -152,7 +182,7 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 				})
 			})
 		})
-
+		//点击删除按钮
 	});
 
 </script>
@@ -406,42 +436,43 @@ String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.g
 <%--					</tr>--%>
 					</tbody>
 				</table>
+				<div id="demo"></div>
 			</div>
 
-			<div style="height: 50px; position: relative;top: 30px;">
-				<div>
-					<button type="button" class="btn btn-default"  style="cursor: default;">共<b id="amountOfActivity"></b>条记录</button>
-				</div>
-				<div class="btn-group" style="position: relative;top: -34px; left: 110px;">
-					<button type="button" class="btn btn-default" style="cursor: default;">显示</button>
-					<div class="btn-group">
-						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="pageSize">
-							10
-							<span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu" role="menu">
-							<li><a href="#">20</a></li>
-							<li><a href="#">30</a></li>
-						</ul>
-					</div>
-					<button type="button" class="btn btn-default" style="cursor: default;">条/页</button>
-				</div>
-				<div style="position: relative;top: -88px; left: 285px;">
-					<nav>
-						<ul class="pagination">
-							<li class="disabled"><a href="#">首页</a></li>
-							<li class="disabled"><a href="#">上一页</a></li>
-							<li class="active"><a href="#">1</a></li>
-							<li><a href="#">2</a></li>
-							<li><a href="#">3</a></li>
-							<li><a href="#">4</a></li>
-							<li><a href="#">5</a></li>
-							<li><a href="#">下一页</a></li>
-							<li class="disabled"><a href="#">末页</a></li>
-						</ul>
-					</nav>
-				</div>
-			</div>
+<%--			<div style="height: 50px; position: relative;top: 30px;">--%>
+<%--				<div>--%>
+<%--					<button type="button" class="btn btn-default"  style="cursor: default;">共<b id="amountOfActivity"></b>条记录</button>--%>
+<%--				</div>--%>
+<%--				<div class="btn-group" style="position: relative;top: -34px; left: 110px;">--%>
+<%--					<button type="button" class="btn btn-default" style="cursor: default;">显示</button>--%>
+<%--					<div class="btn-group">--%>
+<%--						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="pageSize">--%>
+<%--							10--%>
+<%--							<span class="caret"></span>--%>
+<%--						</button>--%>
+<%--						<ul class="dropdown-menu" role="menu">--%>
+<%--							<li><a href="#">20</a></li>--%>
+<%--							<li><a href="#">30</a></li>--%>
+<%--						</ul>--%>
+<%--					</div>--%>
+<%--					<button type="button" class="btn btn-default" style="cursor: default;">条/页</button>--%>
+<%--				</div>--%>
+<%--				<div style="position: relative;top: -88px; left: 285px;">--%>
+<%--					<nav>--%>
+<%--						<ul class="pagination">--%>
+<%--							<li class="disabled"><a href="#">首页</a></li>--%>
+<%--							<li class="disabled"><a href="#">上一页</a></li>--%>
+<%--							<li class="active"><a href="#">1</a></li>--%>
+<%--							<li><a href="#">2</a></li>--%>
+<%--							<li><a href="#">3</a></li>--%>
+<%--							<li><a href="#">4</a></li>--%>
+<%--							<li><a href="#">5</a></li>--%>
+<%--							<li><a href="#">下一页</a></li>--%>
+<%--							<li class="disabled"><a href="#">末页</a></li>--%>
+<%--						</ul>--%>
+<%--					</nav>--%>
+<%--				</div>--%>
+<%--			</div>--%>
 
 		</div>
 
